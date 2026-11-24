@@ -2,435 +2,739 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IDG Loy Krathong 2026 - กระทงสร้างสรรค์ เทพีแห่งนวัตกรรม</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>IDG Loy Krathong 2026 🏮 ลอยกระทง</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== Reset ===== */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html, body { width:100%; height:100%; overflow:hidden; font-family:'Kanit',sans-serif; }
+
+        /* ===== Canvas Container ===== */
+        #scene {
+            position: fixed; inset:0;
+            background: linear-gradient(180deg,
+                #020111 0%, #0a0533 20%, #0d1b4a 40%,
+                #1a3a5c 55%, #1e5080 65%, #1565a0 75%,
+                #0d7db5 85%, #0891c7 100%);
+            cursor: default;
+            touch-action: none;
+        }
+        canvas { display: block; width:100%; height:100%; }
+
+        /* ===== Title Overlay ===== */
+        #title-overlay {
+            position: fixed; top:0; left:0; right:0;
+            text-align: center;
+            padding: 30px 20px 10px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        #title-overlay h1 {
+            font-size: clamp(1.6rem, 5vw, 3rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffd700, #ffaa00, #ffd700);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));
+            margin-bottom: 4px;
+        }
+        #title-overlay p {
+            font-size: clamp(0.8rem, 2vw, 1.1rem);
+            color: #ffeebb;
+            opacity: 0.8;
+        }
+
+        /* ===== Instruction ===== */
+        #instruction {
+            position: fixed;
+            bottom: 160px; left:50%;
+            transform: translateX(-50%);
+            color: #ffeebb;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+            animation: instructPulse 2.5s ease-in-out infinite;
+            text-shadow: 0 0 15px rgba(255,200,50,0.6);
+            white-space: nowrap;
+        }
+        @keyframes instructPulse {
+            0%,100% { opacity:0.6; transform: translateX(-50%) translateY(0); }
+            50% { opacity:1; transform: translateX(-50%) translateY(-8px); }
+        }
+
+        /* ===== Wish Input ===== */
+        #wish-panel {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%) scale(0);
+            background: rgba(10, 5, 40, 0.95);
+            border: 2px solid rgba(255,215,0,0.4);
+            border-radius: 24px;
+            padding: 40px 36px;
+            z-index: 100;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+            max-width: 420px; width: 90%;
+            box-shadow: 0 0 60px rgba(255,200,50,0.2);
+        }
+        #wish-panel.show { transform: translate(-50%,-50%) scale(1); }
+        #wish-panel h2 {
+            font-size: 1.5rem; color: #ffd700; margin-bottom: 8px;
+        }
+        #wish-panel .sub { font-size: 0.9rem; color: #ccc; margin-bottom: 24px; }
+        #wish-panel textarea {
+            width: 100%; height: 80px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 12px;
+            color: #fff; font-family:'Kanit'; font-size: 1rem;
+            padding: 14px; resize: none;
+            outline: none;
+        }
+        #wish-panel textarea::placeholder { color: rgba(255,255,255,0.3); }
+        #wish-panel textarea:focus { border-color: #ffd700; }
+        #wish-panel button {
+            margin-top: 20px;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #ffd700, #ff9800);
+            border: none; border-radius: 50px;
+            font-family:'Kanit'; font-size: 1.1rem; font-weight: 700;
+            color: #1a0a00; cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(255,200,0,0.4);
+        }
+        #wish-panel button:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(255,200,0,0.6); }
+
+        /* ===== Floating Wish Text ===== */
+        .wish-float {
+            position: fixed;
+            color: #ffeebb;
+            font-size: 1rem;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            animation: wishRise 4s ease-out forwards;
+            text-shadow: 0 0 10px rgba(255,200,50,0.8);
+            max-width: 200px;
+            text-align: center;
+            word-break: break-word;
+        }
+        @keyframes wishRise {
+            0% { opacity:0; transform: translateY(0) scale(0.8); }
+            20% { opacity:1; transform: translateY(-30px) scale(1); }
+            80% { opacity:0.8; transform: translateY(-120px) scale(1); }
+            100% { opacity:0; transform: translateY(-200px) scale(0.6); }
+        }
+
+        /* ===== Counter ===== */
+        #counter {
+            position: fixed; top: 20px; right: 20px;
+            color: #ffd700; font-size: 1rem;
+            z-index: 10; pointer-events: none;
+            text-shadow: 0 0 10px rgba(255,200,50,0.5);
+        }
+        #counter span { font-size: 1.8rem; font-weight: 800; }
+
+        /* ===== Krathong Selector ===== */
+        #selector {
+            position: fixed;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 12px;
+            z-index: 15;
+        }
+        .sel-btn {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,215,0,0.3);
+            background: rgba(10,5,40,0.7);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            font-size: 1.8rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s;
+        }
+        .sel-btn:hover, .sel-btn.active {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255,200,50,0.5);
+            transform: scale(1.1);
+        }
+    </style>
 </head>
 <body>
-    <!-- Floating Lanterns -->
-    <div class="lanterns-container" id="lanterns"></div>
+    <div id="scene">
+        <canvas id="canvas"></canvas>
+    </div>
 
-    <!-- Floating Flowers -->
-    <div class="flowers-container" id="flowers"></div>
+    <div id="title-overlay">
+        <h1>🏮 IDG Loy Krathong 2026</h1>
+        <p>กระทงสร้างสรรค์ เทพีแห่งนวัตกรรม</p>
+    </div>
 
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <a href="#" class="nav-logo">
-                <span class="logo-icon">🏮</span>
-                IDG Loy Krathong
-            </a>
-            <ul class="nav-menu" id="nav-menu">
-                <li><a href="#home" class="nav-link active">หน้าแรก</a></li>
-                <li><a href="#about" class="nav-link">เกี่ยวกับงาน</a></li>
-                <li><a href="#activities" class="nav-link">กิจกรรม</a></li>
-                <li><a href="#rules" class="nav-link">กติกา</a></li>
-                <li><a href="#scoring" class="nav-link">เกณฑ์คะแนน</a></li>
-                <li><a href="#prizes" class="nav-link">รางวัล</a></li>
-                <li><a href="#details" class="nav-link">รายละเอียด</a></li>
-            </ul>
-            <div class="nav-toggle" id="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </nav>
+    <div id="instruction">👆 แตะน้ำเพื่อปล่อยกระทงลอย</div>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="hero-overlay"></div>
-        <div class="hero-water"></div>
-        <div class="hero-content">
-            <div class="hero-badge" data-aos="fade-down">
-                <span>🪷</span> Creative Krathong & IDG Goddess Contest <span>🪷</span>
-            </div>
-            <h1 class="hero-title" data-aos="zoom-in">
-                <span class="title-line title-gold">IDG Loy Krathong</span>
-                <span class="title-line title-year">2026</span>
-            </h1>
-            <h2 class="hero-subtitle" data-aos="fade-up">
-                กระทงสร้างสรรค์ เทพีแห่งนวัตกรรม
-            </h2>
-            <p class="hero-desc" data-aos="fade-up" data-aos-delay="200">
-                ขอเชิญพนักงาน IDG ร่วมกิจกรรมวันลอยกระทง ประจำปี 2569<br>
-                สร้างสรรค์กระทงรักษ์โลก พร้อมส่งตัวแทน "เทพีประจำ House"<br>
-                นำเสนอผลงานบนเวที ชิงรางวัลและคะแนนสะสม House Cup!
-            </p>
-            <div class="hero-cta" data-aos="fade-up" data-aos-delay="400">
-                <a href="#activities" class="btn btn-primary">
-                    <i class="fas fa-star"></i> ดูรายละเอียดกิจกรรม
-                </a>
-                <a href="#details" class="btn btn-outline">
-                    <i class="fas fa-calendar-alt"></i> วัน เวลา สถานที่
-                </a>
-            </div>
+    <div id="counter">กระทงที่ลอย: <span id="count-num">0</span></div>
 
-            <!-- Countdown -->
-            <div class="countdown-wrapper" data-aos="fade-up" data-aos-delay="600">
-                <h3 class="countdown-label">นับถอยหลังสู่วันงาน</h3>
-                <div class="countdown" id="countdown">
-                    <div class="countdown-item">
-                        <span class="countdown-value" id="days">00</span>
-                        <span class="countdown-unit">วัน</span>
-                    </div>
-                    <div class="countdown-separator">:</div>
-                    <div class="countdown-item">
-                        <span class="countdown-value" id="hours">00</span>
-                        <span class="countdown-unit">ชั่วโมง</span>
-                    </div>
-                    <div class="countdown-separator">:</div>
-                    <div class="countdown-item">
-                        <span class="countdown-value" id="minutes">00</span>
-                        <span class="countdown-unit">นาที</span>
-                    </div>
-                    <div class="countdown-separator">:</div>
-                    <div class="countdown-item">
-                        <span class="countdown-value" id="seconds">00</span>
-                        <span class="countdown-unit">วินาที</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="scroll-indicator">
-            <div class="mouse">
-                <div class="mouse-wheel"></div>
-            </div>
-            <span>เลื่อนลง</span>
-        </div>
-    </section>
+    <div id="selector">
+        <div class="sel-btn active" data-type="0">🪷</div>
+        <div class="sel-btn" data-type="1">🌸</div>
+        <div class="sel-btn" data-type="2">🌺</div>
+        <div class="sel-btn" data-type="3">🍃</div>
+    </div>
 
-    <!-- About Section -->
-    <section class="section about-section" id="about">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <span class="section-badge">🏮 เกี่ยวกับงาน</span>
-                <h2 class="section-title">สืบสานประเพณีไทย</h2>
-                <p class="section-subtitle">มาร่วมสร้างสรรค์กระทงรักษ์โลก สืบสานประเพณีไทย และสะสมคะแนน House Cup ไปด้วยกัน!</p>
-            </div>
-            <div class="about-grid">
-                <div class="about-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="about-icon">
-                        <i class="fas fa-leaf"></i>
-                    </div>
-                    <h3>รักษ์โลก</h3>
-                    <p>ใช้วัสดุธรรมชาติ วัสดุเหลือใช้ หรือวัสดุรีไซเคิล ที่ไม่ทำลายสิ่งแวดล้อม</p>
-                </div>
-                <div class="about-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="about-icon">
-                        <i class="fas fa-lightbulb"></i>
-                    </div>
-                    <h3>สร้างสรรค์</h3>
-                    <p>กระทงต้องมีความคิดสร้างสรรค์ แปลกใหม่ และมีเอกลักษณ์</p>
-                </div>
-                <div class="about-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="about-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>House Cup</h3>
-                    <p>แต่ละ House ส่งกระทง 1 กระทง และเทพี 1 คน ชิงคะแนนสะสม</p>
-                </div>
-                <div class="about-card" data-aos="fade-up" data-aos-delay="400">
-                    <div class="about-icon">
-                        <i class="fas fa-microchip"></i>
-                    </div>
-                    <h3>นวัตกรรม</h3>
-                    <p>เชื่อมโยงแนวคิดกับ IDG และนวัตกรรม เพื่อคะแนนเพิ่ม</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Wish Panel -->
+    <div id="wish-panel">
+        <h2>🪷 อธิษฐานก่อนลอย</h2>
+        <p class="sub">เขียนคำอธิษฐาน แล้วปล่อยกระทงลอยน้ำ</p>
+        <textarea id="wish-text" placeholder="พิมพ์คำอธิษฐานที่นี่..." maxlength="100"></textarea>
+        <br>
+        <button id="wish-send">🏮 ปล่อยกระทง</button>
+    </div>
 
-    <!-- Activities Section -->
-    <section class="section activities-section" id="activities">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <span class="section-badge">🎭 รูปแบบการแข่งขัน</span>
-                <h2 class="section-title">กิจกรรมการแข่งขัน</h2>
-                <p class="section-subtitle">แบ่งเป็น 2 กิจกรรมหลัก ที่จะทำให้งานลอยกระทงปีนี้สนุกและน่าจดจำ</p>
-            </div>
-            <div class="activities-grid">
-                <!-- Activity 1 -->
-                <div class="activity-card" data-aos="fade-right">
-                    <div class="activity-number">1</div>
-                    <div class="activity-icon">
-                        <span>🪷</span>
-                    </div>
-                    <h3 class="activity-title">ประกวดกระทงสร้างสรรค์</h3>
-                    <div class="activity-badge">House ละ 1 กระทง</div>
-                    <p class="activity-desc">
-                        แต่ละ House ร่วมกันออกแบบและประดิษฐ์กระทง โดยเน้นความคิดสร้างสรรค์ 
-                        ความสวยงาม และการใช้วัสดุที่เป็นมิตรต่อสิ่งแวดล้อม
-                    </p>
-                    <ul class="activity-highlights">
-                        <li><i class="fas fa-check-circle"></i> ใช้วัสดุธรรมชาติ / รีไซเคิล</li>
-                        <li><i class="fas fa-check-circle"></i> แปลกใหม่ มีเอกลักษณ์</li>
-                        <li><i class="fas fa-check-circle"></i> ไม่ทำลายสิ่งแวดล้อม</li>
-                    </ul>
-                </div>
+    <script>
+    // ============================================================
+    //  IDG Loy Krathong 2026 — Interactive Krathong Float
+    // ============================================================
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, waterY;
 
-                <!-- Plus Sign -->
-                <div class="activity-plus" data-aos="zoom-in">
-                    <span>+</span>
-                </div>
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        waterY = H * 0.58;          // water starts at 58% from top
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
-                <!-- Activity 2 -->
-                <div class="activity-card" data-aos="fade-left">
-                    <div class="activity-number">2</div>
-                    <div class="activity-icon">
-                        <span>👸</span>
-                    </div>
-                    <h3 class="activity-title">ประกวดเทพีประจำ House</h3>
-                    <div class="activity-badge">House ละ 1 คน</div>
-                    <p class="activity-desc">
-                        แต่ละ House ส่งตัวแทนเทพีขึ้นเวที พร้อมนำเสนอชื่อกระทง แนวคิด วัสดุที่ใช้ 
-                        และจุดเด่นของกระทงที่ตนออกแบบ ภายในเวลา 3 นาที
-                    </p>
-                    <ul class="activity-highlights">
-                        <li><i class="fas fa-check-circle"></i> นำเสนอภายใน 3 นาที</li>
-                        <li><i class="fas fa-check-circle"></i> แต่งกายโดดเด่น</li>
-                        <li><i class="fas fa-check-circle"></i> เชื่อมโยงกับแนวคิดกระทง</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ---- State ----
+    let krathongs = [];
+    let stars = [];
+    let lanterns = [];
+    let ripples = [];
+    let sparkles = [];
+    let fireflies = [];
+    let selectedType = 0;
+    let floatCount = 0;
+    let time = 0;
+    let wishText = '';
 
-    <!-- Rules Section -->
-    <section class="section rules-section" id="rules">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <span class="section-badge">📋 กติกาการแข่งขัน</span>
-                <h2 class="section-title">กติกาการแข่งขัน</h2>
-            </div>
-            <div class="rules-grid">
-                <div class="rule-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="rule-number">1</div>
-                    <p>แต่ละ House ส่งกระทง 1 กระทง และเทพี 1 คน</p>
-                </div>
-                <div class="rule-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="rule-number">2</div>
-                    <p>ใช้วัสดุธรรมชาติ วัสดุเหลือใช้ หรือวัสดุรีไซเคิล ที่ไม่ทำลายสิ่งแวดล้อม</p>
-                </div>
-                <div class="rule-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="rule-number">3</div>
-                    <p>กระทงต้องมีความคิดสร้างสรรค์ แปลกใหม่ และมีเอกลักษณ์</p>
-                </div>
-                <div class="rule-card" data-aos="fade-up" data-aos-delay="400">
-                    <div class="rule-number">4</div>
-                    <p>เทพีประจำ House ต้องนำเสนอแนวคิดของกระทง ภายใน 3 นาที</p>
-                </div>
-                <div class="rule-card special" data-aos="fade-up" data-aos-delay="500">
-                    <div class="rule-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
-                    <p>สามารถแต่งกายให้เข้ากับธีมลอยกระทง หรือแนวคิดของกระทงได้</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ---- Selector buttons ----
+    document.querySelectorAll('.sel-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.sel-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedType = parseInt(btn.dataset.type);
+        });
+    });
 
-    <!-- Scoring Section -->
-    <section class="section scoring-section" id="scoring">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <span class="section-badge">📊 เกณฑ์การตัดสิน</span>
-                <h2 class="section-title">เกณฑ์การตัดสิน</h2>
-                <p class="section-subtitle">คะแนนเต็ม 100 คะแนน</p>
-            </div>
-            <div class="scoring-container" data-aos="fade-up">
-                <div class="scoring-chart">
-                    <div class="score-bar" data-aos="fade-right" data-aos-delay="100">
-                        <div class="score-info">
-                            <span class="score-label"><i class="fas fa-lightbulb"></i> ความคิดสร้างสรรค์และความแปลกใหม่</span>
-                            <span class="score-value">25 คะแนน</span>
-                        </div>
-                        <div class="score-track">
-                            <div class="score-fill" data-width="25"></div>
-                        </div>
-                    </div>
-                    <div class="score-bar" data-aos="fade-right" data-aos-delay="200">
-                        <div class="score-info">
-                            <span class="score-label"><i class="fas fa-leaf"></i> วัสดุรักษ์โลกและความเป็นมิตรต่อสิ่งแวดล้อม</span>
-                            <span class="score-value">25 คะแนน</span>
-                        </div>
-                        <div class="score-track">
-                            <div class="score-fill" data-width="25"></div>
-                        </div>
-                    </div>
-                    <div class="score-bar" data-aos="fade-right" data-aos-delay="300">
-                        <div class="score-info">
-                            <span class="score-label"><i class="fas fa-gem"></i> ความสวยงามและความประณีต</span>
-                            <span class="score-value">15 คะแนน</span>
-                        </div>
-                        <div class="score-track">
-                            <div class="score-fill" data-width="15"></div>
-                        </div>
-                    </div>
-                    <div class="score-bar" data-aos="fade-right" data-aos-delay="400">
-                        <div class="score-info">
-                            <span class="score-label"><i class="fas fa-microphone"></i> การนำเสนอของเทพี</span>
-                            <span class="score-value">20 คะแนน</span>
-                        </div>
-                        <div class="score-track">
-                            <div class="score-fill" data-width="20"></div>
-                        </div>
-                    </div>
-                    <div class="score-bar" data-aos="fade-right" data-aos-delay="500">
-                        <div class="score-info">
-                            <span class="score-label"><i class="fas fa-link"></i> การเชื่อมโยงแนวคิดกับ IDG / นวัตกรรม</span>
-                            <span class="score-value">15 คะแนน</span>
-                        </div>
-                        <div class="score-track">
-                            <div class="score-fill" data-width="15"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="scoring-total">
-                    <div class="total-circle">
-                        <span class="total-value">100</span>
-                        <span class="total-label">คะแนนเต็ม</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ---- Stars ----
+    function initStars() {
+        stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * W,
+                y: Math.random() * waterY * 0.9,
+                r: Math.random() * 1.5 + 0.3,
+                twinkle: Math.random() * Math.PI * 2,
+                speed: Math.random() * 0.02 + 0.005
+            });
+        }
+    }
+    initStars();
 
-    <!-- Materials Section -->
-    <section class="section materials-section" id="materials">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <span class="section-badge">🧰 อุปกรณ์</span>
-                <h2 class="section-title">อุปกรณ์ที่ฝ่ายบุคคล (HR) จัดเตรียมให้</h2>
-            </div>
-            <div class="materials-grid">
-                <div class="material-provided" data-aos="fade-up" data-aos-delay="100">
-                    <h3><i class="fas fa-box-open"></i> จัดเตรียมให้</h3>
-                    <div class="material-items">
-                        <div class="material-item">
-                            <span class="material-emoji">🍃</span>
-                            <span>ใบตอง</span>
-                        </div>
-                        <div class="material-item">
-                            <span class="material-emoji">🌿</span>
-                            <span>ต้นกล้วย</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="material-extra" data-aos="fade-up" data-aos-delay="200">
-                    <h3><i class="fas fa-plus-circle"></i> นำมาเพิ่มเติมได้</h3>
-                    <div class="material-tags">
-                        <span class="tag">🌸 ดอกไม้สด</span>
-                        <span class="tag">🍂 วัสดุธรรมชาติ</span>
-                        <span class="tag">♻️ วัสดุรีไซเคิล</span>
-                        <span class="tag">🎀 ของตกแต่งต่าง ๆ</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ---- Moon ----
+    const moon = { x: 0, y: 0, r: 40 };
+    function updateMoonPos() {
+        moon.x = W * 0.82;
+        moon.y = H * 0.12;
+        moon.r = Math.min(W, H) * 0.045;
+    }
+    updateMoonPos();
+    window.addEventListener('resize', () => { initStars(); updateMoonPos(); });
 
-    <!-- Prizes Section -->
-    <section class="section prizes-section" id="prizes">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <span class="section-badge">🏆 รางวัล</span>
-                <h2 class="section-title">รางวัล (3 รางวัล)</h2>
-            </div>
-            <div class="prizes-grid">
-                <div class="prize-card prize-gold" data-aos="fade-up" data-aos-delay="100">
-                    <div class="prize-ribbon">🥇</div>
-                    <div class="prize-icon">🏆</div>
-                    <h3>รางวัลที่ 1</h3>
-                    <p>รางวัลกระทงสร้างสรรค์และรักษ์โลก</p>
-                    <div class="prize-glow"></div>
-                </div>
-                <div class="prize-card prize-silver" data-aos="fade-up" data-aos-delay="200">
-                    <div class="prize-ribbon">🥈</div>
-                    <div class="prize-icon">👑</div>
-                    <h3>รางวัลที่ 2</h3>
-                    <p>รางวัลเทพีแต่งกายโดดเด่นและนำเสนอยอดเยี่ยม</p>
-                    <div class="prize-glow"></div>
-                </div>
-                <div class="prize-card prize-bronze" data-aos="fade-up" data-aos-delay="300">
-                    <div class="prize-ribbon">🥉</div>
-                    <div class="prize-icon">❤️</div>
-                    <h3>รางวัลที่ 3</h3>
-                    <p>รางวัล Popular Vote ขวัญใจ IDG</p>
-                    <div class="prize-glow"></div>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ---- Sky Lanterns ----
+    function spawnLantern() {
+        lanterns.push({
+            x: Math.random() * W,
+            y: waterY + Math.random() * 100,
+            vx: (Math.random() - 0.3) * 0.3,
+            vy: -(Math.random() * 0.4 + 0.2),
+            size: Math.random() * 12 + 8,
+            opacity: 0,
+            maxOpacity: Math.random() * 0.5 + 0.4,
+            glow: Math.random() * 10 + 5,
+            life: 0,
+            maxLife: Math.random() * 600 + 400
+        });
+    }
+    for (let i = 0; i < 8; i++) {
+        const l = { x: Math.random()*W, y: Math.random()*waterY*0.8,
+            vx:(Math.random()-0.3)*0.3, vy:-(Math.random()*0.4+0.2),
+            size: Math.random()*12+8, opacity:Math.random()*0.5+0.3,
+            maxOpacity: Math.random()*0.5+0.4, glow:Math.random()*10+5,
+            life: Math.random()*300, maxLife: Math.random()*600+400 };
+        lanterns.push(l);
+    }
 
-    <!-- Details Section -->
-    <section class="section details-section" id="details">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <span class="section-badge">📍 วัน เวลา สถานที่</span>
-                <h2 class="section-title">รายละเอียดงาน</h2>
-            </div>
-            <div class="details-grid">
-                <div class="detail-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="detail-icon">
-                        <i class="fas fa-calendar-day"></i>
-                    </div>
-                    <h3>วันที่</h3>
-                    <p class="detail-main">วันอังคารที่ 24 พฤศจิกายน 2569</p>
-                </div>
-                <div class="detail-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="detail-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h3>เวลา</h3>
-                    <p class="detail-main">15:00 น. เป็นต้นไป</p>
-                </div>
-                <div class="detail-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="detail-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <h3>สถานที่</h3>
-                    <p class="detail-main">ชั้น G อาคาร IDG ตึกใหม่</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ---- Fireflies ----
+    function initFireflies() {
+        fireflies = [];
+        for (let i = 0; i < 20; i++) {
+            fireflies.push({
+                x: Math.random() * W,
+                y: waterY - Math.random() * 150 - 20,
+                vx: (Math.random()-0.5)*0.5,
+                vy: (Math.random()-0.5)*0.3,
+                r: Math.random()*2+1,
+                phase: Math.random()*Math.PI*2
+            });
+        }
+    }
+    initFireflies();
 
-    <!-- CTA Section -->
-    <section class="section cta-section">
-        <div class="container">
-            <div class="cta-content" data-aos="zoom-in">
-                <h2>🪷 มาร่วมสร้างสรรค์กระทงรักษ์โลก 🪷</h2>
-                <p>สืบสานประเพณีไทย และสะสมคะแนน House Cup ไปด้วยกัน!</p>
-                <div class="cta-emoji-row">
-                    <span>🏮</span>
-                    <span>🪷</span>
-                    <span>🕯️</span>
-                    <span>🌸</span>
-                    <span>✨</span>
-                    <span>👸</span>
-                    <span>🏆</span>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ---- Draw helpers ----
+    function drawMoon() {
+        ctx.save();
+        // glow
+        const g = ctx.createRadialGradient(moon.x, moon.y, moon.r*0.5, moon.x, moon.y, moon.r*4);
+        g.addColorStop(0, 'rgba(255,250,220,0.15)');
+        g.addColorStop(1, 'rgba(255,250,220,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(moon.x, moon.y, moon.r*4, 0, Math.PI*2); ctx.fill();
+        // body
+        ctx.fillStyle = '#fffde8';
+        ctx.beginPath(); ctx.arc(moon.x, moon.y, moon.r, 0, Math.PI*2); ctx.fill();
+        // crater shadow
+        ctx.fillStyle = 'rgba(200,190,150,0.3)';
+        ctx.beginPath(); ctx.arc(moon.x - moon.r*0.2, moon.y - moon.r*0.1, moon.r*0.25, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(moon.x + moon.r*0.3, moon.y + moon.r*0.3, moon.r*0.15, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+    }
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <span>🏮</span> IDG Loy Krathong 2026
-                </div>
-                <p class="footer-text">กระทงสร้างสรรค์ เทพีแห่งนวัตกรรม<br>Creative Krathong & IDG Goddess Contest</p>
-                <div class="footer-divider"></div>
-                <p class="footer-copyright">&copy; 2026 IDG. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    function drawStars() {
+        stars.forEach(s => {
+            s.twinkle += s.speed;
+            const a = 0.4 + Math.sin(s.twinkle) * 0.4;
+            ctx.fillStyle = `rgba(255,255,240,${a})`;
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+        });
+    }
 
-    <script src="script.js"></script>
+    function drawLanterns() {
+        if (Math.random() < 0.008 && lanterns.length < 20) spawnLantern();
+        lanterns = lanterns.filter(l => l.life < l.maxLife);
+        lanterns.forEach(l => {
+            l.x += l.vx + Math.sin(time*0.01 + l.x)*0.15;
+            l.y += l.vy;
+            l.life++;
+            if (l.life < 50) l.opacity = (l.life/50) * l.maxOpacity;
+            else if (l.life > l.maxLife - 80) l.opacity = ((l.maxLife - l.life)/80) * l.maxOpacity;
+            else l.opacity = l.maxOpacity;
+
+            ctx.save();
+            // glow
+            const g2 = ctx.createRadialGradient(l.x, l.y, 0, l.x, l.y, l.size*2);
+            g2.addColorStop(0, `rgba(255,180,50,${l.opacity*0.4})`);
+            g2.addColorStop(1, 'rgba(255,150,30,0)');
+            ctx.fillStyle = g2;
+            ctx.beginPath(); ctx.arc(l.x, l.y, l.size*2, 0, Math.PI*2); ctx.fill();
+            // body
+            ctx.fillStyle = `rgba(255,200,80,${l.opacity})`;
+            ctx.beginPath();
+            ctx.ellipse(l.x, l.y, l.size*0.6, l.size*0.8, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    function drawFireflies() {
+        fireflies.forEach(f => {
+            f.phase += 0.03;
+            f.x += f.vx + Math.sin(f.phase)*0.3;
+            f.y += f.vy + Math.cos(f.phase*0.7)*0.2;
+            if (f.x < 0) f.x = W;
+            if (f.x > W) f.x = 0;
+            if (f.y < waterY - 200) f.vy = 0.2;
+            if (f.y > waterY - 10) f.vy = -0.2;
+            const a = 0.3 + Math.sin(f.phase*2)*0.3;
+            const g = ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*4);
+            g.addColorStop(0,`rgba(200,255,100,${a})`);
+            g.addColorStop(1,'rgba(200,255,100,0)');
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(f.x,f.y,f.r*4,0,Math.PI*2); ctx.fill();
+        });
+    }
+
+    // ---- Water ----
+    function drawWater() {
+        // main water body
+        const wg = ctx.createLinearGradient(0, waterY, 0, H);
+        wg.addColorStop(0, 'rgba(10,60,120,0.85)');
+        wg.addColorStop(0.3, 'rgba(5,40,90,0.9)');
+        wg.addColorStop(1, 'rgba(2,15,40,0.95)');
+        ctx.fillStyle = wg;
+        ctx.fillRect(0, waterY, W, H - waterY);
+
+        // wave lines
+        ctx.save();
+        for (let i = 0; i < 8; i++) {
+            const wy = waterY + i * ((H - waterY) / 8);
+            const a = 0.04 - i * 0.004;
+            ctx.strokeStyle = `rgba(150,200,255,${Math.max(a, 0.005)})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let x = 0; x < W; x += 3) {
+                const y = wy + Math.sin(x * 0.008 + time * 0.02 + i) * 4
+                             + Math.sin(x * 0.015 + time * 0.015) * 2;
+                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // moon reflection
+        ctx.save();
+        const reflY = waterY + (moon.y - waterY) * 0.1 + 20;
+        for (let i = 0; i < 15; i++) {
+            const ry = reflY + i * 8;
+            const rx = moon.x + Math.sin(time * 0.02 + i * 0.5) * (5 + i * 2);
+            const ra = 0.08 - i * 0.005;
+            ctx.fillStyle = `rgba(255,250,200,${Math.max(ra, 0)})`;
+            ctx.fillRect(rx - 15 + i, ry, 30 - i * 1.5, 2);
+        }
+        ctx.restore();
+    }
+
+    // ---- Temple Silhouette ----
+    function drawTemple() {
+        ctx.save();
+        ctx.fillStyle = 'rgba(5,2,20,0.9)';
+        // simple temple shape left side
+        const tx = W * 0.12, ty = waterY;
+        ctx.beginPath();
+        ctx.moveTo(tx - 40, ty);
+        ctx.lineTo(tx - 30, ty - 50);
+        ctx.lineTo(tx - 15, ty - 80);
+        ctx.lineTo(tx - 5, ty - 120);
+        ctx.lineTo(tx, ty - 140);
+        ctx.lineTo(tx + 5, ty - 120);
+        ctx.lineTo(tx + 15, ty - 80);
+        ctx.lineTo(tx + 30, ty - 50);
+        ctx.lineTo(tx + 40, ty);
+        ctx.fill();
+
+        // right side temple
+        const tx2 = W * 0.9, ty2 = waterY;
+        ctx.beginPath();
+        ctx.moveTo(tx2 - 50, ty2);
+        ctx.lineTo(tx2 - 35, ty2 - 60);
+        ctx.lineTo(tx2 - 20, ty2 - 100);
+        ctx.lineTo(tx2 - 8, ty2 - 130);
+        ctx.lineTo(tx2, ty2 - 150);
+        ctx.lineTo(tx2 + 8, ty2 - 130);
+        ctx.lineTo(tx2 + 20, ty2 - 100);
+        ctx.lineTo(tx2 + 35, ty2 - 60);
+        ctx.lineTo(tx2 + 50, ty2);
+        ctx.fill();
+
+        // trees
+        for (let i = 0; i < 6; i++) {
+            const treex = W * (0.02 + i * 0.18 + Math.sin(i*3)*0.03);
+            const treetop = waterY - 30 - Math.random() * 20;
+            ctx.beginPath();
+            ctx.ellipse(treex, treetop, 18, 35, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillRect(treex-3, treetop+20, 6, 20);
+        }
+        ctx.restore();
+    }
+
+    // ---- Krathong Drawing ----
+    const krathongColors = [
+        { petal: '#ff69b4', center: '#ffd700', leaf: '#228b22', candle: '#fff4c2' },  // lotus pink
+        { petal: '#ff8fa3', center: '#ffe066', leaf: '#2d8b4e', candle: '#fff8dc' },  // sakura
+        { petal: '#ff4444', center: '#ffcc00', leaf: '#1a7a3a', candle: '#fff4c2' },  // hibiscus
+        { petal: '#66bb6a', center: '#a5d6a7', leaf: '#1b5e20', candle: '#fffde7' },  // leaf green
+    ];
+
+    function drawKrathong(k) {
+        ctx.save();
+        ctx.translate(k.x, k.y);
+
+        const bobY = Math.sin(time * 0.03 + k.phase) * 3;
+        const bobRot = Math.sin(time * 0.02 + k.phase + 1) * 0.03;
+        ctx.translate(0, bobY);
+        ctx.rotate(bobRot);
+
+        const s = k.size;
+        const col = krathongColors[k.type];
+
+        // banana leaf base
+        ctx.fillStyle = col.leaf;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s * 1.3, s * 0.45, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1; ctx.stroke();
+
+        // inner dark circle
+        ctx.fillStyle = 'rgba(0,50,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s * 0.9, s * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // flower petals
+        const petalCount = k.type === 3 ? 6 : 8;
+        for (let i = 0; i < petalCount; i++) {
+            const angle = (i / petalCount) * Math.PI * 2 - Math.PI / 2;
+            const px = Math.cos(angle) * s * 0.5;
+            const py = Math.sin(angle) * s * 0.2;
+            ctx.fillStyle = col.petal;
+            ctx.beginPath();
+            ctx.ellipse(px, py, s * 0.25, s * 0.1, angle, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // center
+        ctx.fillStyle = col.center;
+        ctx.beginPath(); ctx.arc(0, -s*0.02, s*0.15, 0, Math.PI*2); ctx.fill();
+
+        // candle
+        ctx.fillStyle = '#fffbe6';
+        ctx.fillRect(-2, -s*0.5, 4, s*0.35);
+
+        // flame
+        const flicker = Math.sin(time * 0.15 + k.phase) * 2;
+        const flameH = s * 0.25 + Math.sin(time*0.2+k.phase)*3;
+        // flame glow
+        const fg = ctx.createRadialGradient(flicker, -s*0.55, 0, flicker, -s*0.55, s*0.6);
+        fg.addColorStop(0, 'rgba(255,200,50,0.3)');
+        fg.addColorStop(1, 'rgba(255,200,50,0)');
+        ctx.fillStyle = fg;
+        ctx.beginPath(); ctx.arc(flicker, -s*0.55, s*0.6, 0, Math.PI*2); ctx.fill();
+
+        // flame shape
+        ctx.fillStyle = '#ffdd44';
+        ctx.beginPath();
+        ctx.moveTo(-4 + flicker, -s*0.5);
+        ctx.quadraticCurveTo(-6 + flicker, -s*0.5 - flameH*0.5, flicker, -s*0.5 - flameH);
+        ctx.quadraticCurveTo(6 + flicker, -s*0.5 - flameH*0.5, 4 + flicker, -s*0.5);
+        ctx.fill();
+        ctx.fillStyle = '#fff8e0';
+        ctx.beginPath();
+        ctx.moveTo(-2 + flicker, -s*0.5);
+        ctx.quadraticCurveTo(-3 + flicker, -s*0.5 - flameH*0.4, flicker, -s*0.5 - flameH*0.6);
+        ctx.quadraticCurveTo(3 + flicker, -s*0.5 - flameH*0.4, 2 + flicker, -s*0.5);
+        ctx.fill();
+
+        // incense sticks
+        ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(-8, -s*0.15); ctx.lineTo(-10, -s*0.65); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(8, -s*0.15); ctx.lineTo(10, -s*0.65); ctx.stroke();
+        // incense tips
+        ctx.fillStyle = '#ff6600';
+        ctx.beginPath(); ctx.arc(-10, -s*0.65, 2, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(10, -s*0.65, 2, 0, Math.PI*2); ctx.fill();
+
+        // reflection on water
+        ctx.globalAlpha = 0.15;
+        ctx.scale(1, -0.4);
+        ctx.fillStyle = col.candle;
+        ctx.beginPath();
+        ctx.ellipse(0, -s*0.5, s*0.6, s*0.2, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        ctx.restore();
+    }
+
+    // ---- Ripple ----
+    function drawRipples() {
+        ripples = ripples.filter(r => r.life < r.maxLife);
+        ripples.forEach(r => {
+            r.life++;
+            r.radius += 1.2;
+            const a = 1 - r.life / r.maxLife;
+            ctx.strokeStyle = `rgba(180,220,255,${a * 0.3})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(r.x, r.y, r.radius, r.radius * 0.3, 0, 0, Math.PI * 2);
+            ctx.stroke();
+        });
+    }
+
+    // ---- Sparkles ----
+    function drawSparkles() {
+        sparkles = sparkles.filter(s => s.life < s.maxLife);
+        sparkles.forEach(s => {
+            s.life++;
+            s.x += s.vx;
+            s.y += s.vy;
+            s.vy -= 0.01;
+            const a = 1 - s.life / s.maxLife;
+            ctx.fillStyle = `rgba(255,230,100,${a})`;
+            const sr = Math.max(0, s.r * a);
+            ctx.beginPath(); ctx.arc(s.x, s.y, sr, 0, Math.PI*2); ctx.fill();
+        });
+    }
+
+    function spawnSparkles(x, y) {
+        for (let i = 0; i < 15; i++) {
+            sparkles.push({
+                x, y,
+                vx: (Math.random()-0.5) * 3,
+                vy: -Math.random() * 2 - 0.5,
+                r: Math.random() * 3 + 1,
+                life: 0, maxLife: 40 + Math.random()*30
+            });
+        }
+    }
+
+    // ---- Add Krathong ----
+    function addKrathong(x, y, wish) {
+        const k = {
+            x, y: Math.max(y, waterY + 10),
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: 0,
+            size: 28 + Math.random() * 10,
+            type: selectedType,
+            phase: Math.random() * Math.PI * 2,
+            opacity: 0,
+            born: time,
+            wish: wish || '',
+            driftSpeed: Math.random() * 0.3 + 0.1
+        };
+        krathongs.push(k);
+        floatCount++;
+        document.getElementById('count-num').textContent = floatCount;
+
+        // ripple effect
+        for (let i = 0; i < 3; i++) {
+            ripples.push({ x, y: k.y, radius: 5 + i*5, life:0, maxLife: 60+i*20 });
+        }
+
+        spawnSparkles(x, k.y - 20);
+
+        // show floating wish text
+        if (wish) {
+            const el = document.createElement('div');
+            el.className = 'wish-float';
+            el.textContent = `"${wish}"`;
+            el.style.left = x + 'px';
+            el.style.top = (k.y - 40) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+
+        // hide instruction after first
+        const inst = document.getElementById('instruction');
+        if (inst) inst.style.display = 'none';
+    }
+
+    // ---- Update Krathongs ----
+    function updateKrathongs() {
+        krathongs.forEach(k => {
+            k.x += k.vx + Math.sin(time * 0.005 + k.phase) * 0.15;
+            k.y += Math.sin(time * 0.01 + k.phase) * 0.1;
+            if (k.opacity < 1) k.opacity = Math.min(1, k.opacity + 0.02);
+            // gentle drift
+            k.vx *= 0.9995;
+            k.x += k.driftSpeed * Math.sin(time * 0.003 + k.phase);
+            // keep in bounds
+            if (k.x < -50) k.x = W + 50;
+            if (k.x > W + 50) k.x = -50;
+        });
+    }
+
+    // ---- Touch / Click Handling ----
+    let pendingPos = null;
+
+    function handleTap(cx, cy) {
+        if (cy < waterY - 20) return;  // only water area
+        pendingPos = { x: cx, y: cy };
+        // show wish panel
+        document.getElementById('wish-panel').classList.add('show');
+        document.getElementById('wish-text').value = '';
+        document.getElementById('wish-text').focus();
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        handleTap(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    // Wish panel
+    document.getElementById('wish-send').addEventListener('click', () => {
+        const text = document.getElementById('wish-text').value.trim();
+        document.getElementById('wish-panel').classList.remove('show');
+        if (pendingPos) {
+            addKrathong(pendingPos.x, pendingPos.y, text);
+            pendingPos = null;
+        }
+    });
+
+    // Enter key in textarea
+    document.getElementById('wish-text').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById('wish-send').click();
+        }
+    });
+
+    // Close wish panel on outside click
+    document.getElementById('wish-panel').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('wish-panel')) {
+            document.getElementById('wish-panel').classList.remove('show');
+            pendingPos = null;
+        }
+    });
+
+    // ---- Main Render Loop ----
+    function render() {
+        time++;
+        ctx.clearRect(0, 0, W, H);
+
+        // Sky gradient is in CSS; draw sky elements
+        drawStars();
+        drawMoon();
+        drawTemple();
+        drawFireflies();
+        drawLanterns();
+
+        // Water
+        drawWater();
+
+        // Ripples
+        drawRipples();
+
+        // Krathongs
+        updateKrathongs();
+        krathongs.forEach(k => {
+            ctx.globalAlpha = k.opacity;
+            drawKrathong(k);
+            ctx.globalAlpha = 1;
+        });
+
+        // Sparkles
+        drawSparkles();
+
+        requestAnimationFrame(render);
+    }
+    render();
+
+    // ---- Add a few initial krathongs for ambiance ----
+    setTimeout(() => {
+        const k1 = { x: W*0.3, y: waterY+40, vx:0.15, vy:0, size:30, type:0, phase:0, opacity:1, born:0, wish:'', driftSpeed:0.15 };
+        const k2 = { x: W*0.65, y: waterY+70, vx:-0.1, vy:0, size:26, type:1, phase:2, opacity:1, born:0, wish:'', driftSpeed:0.1 };
+        const k3 = { x: W*0.5, y: waterY+100, vx:0.05, vy:0, size:32, type:2, phase:4, opacity:1, born:0, wish:'', driftSpeed:0.2 };
+        krathongs.push(k1, k2, k3);
+    }, 500);
+
+    </script>
 </body>
 </html>
