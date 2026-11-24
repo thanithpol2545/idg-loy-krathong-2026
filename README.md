@@ -1,41 +1,50 @@
-# IDG Loy Krathong 2026
+# IDG Loy Krathong 2026 🏮
 
-🏮 **กระทงสร้างสรรค์ เทพีแห่งนวัตกรรม** | Creative Krathong & IDG Goddess Contest
+> **กระทงสร้างสรรค์ เทพีแห่งนวัตกรรม | Interactive Slide & Float Krathong**
 
-A beautiful, responsive single-page website for the IDG Loy Krathong 2026 event.
+เว็บไซต์จำลองเทศกาลลอยกระทงแบบ Interactive สไตล์งาน **IDG Loy Krathong 2026** สามารถพิมพ์คำอธิษฐานและ **สไลด์/ลากกระทงไปลอยบนสายน้ำ** ได้จริงแบบเรียลไทม์
 
-## Features
+---
 
-- ✨ Animated floating lanterns & flower petals
-- 📱 Fully responsive design (mobile, tablet, desktop)
-- ⏱️ Live countdown timer to the event
-- 🎨 Thai-inspired gold & midnight theme
-- 🔄 Smooth scroll animations
-- 📊 Animated scoring bars
-- 🧭 Smart navbar with active section tracking
+## ✨ ไฮไลท์ฟีเจอร์ (Features)
 
-## Event Details
+- 🌊 **สไลด์กระทงไปลอย (Slide to Float):** ลากกระทงจากแท่นด้านล่างสไลด์ขึ้นไปปล่อยลอยบนสายน้ำ หรือแตะที่ผิวน้ำเพื่อปล่อยกระทง
+- ✍️ **คำอธิษฐานนิรนาม & เวลาลอย:** พิมพ์คำอธิษฐานแล้วจะปรากฏเป็นป้ายข้อความลอยอยู่เหนือกกระทงพร้อมเวลาที่ลอย (เช่น `⏱️ 09:28 น.`) โดย **ไม่แสดงชื่อผู้พิมพ์** เพื่อความเป็นส่วนตัว (Anonymous)
+- 🪷 **เลือกกระทงได้ 4 สไตล์:**
+  - 🪷 ดอกบัวหลวงสีชมพู (Classic Lotus)
+  - 🌸 ซากุระมงคล (Cherry Blossom)
+  - 🌺 ชบาดอกแดงสดใส (Hibiscus)
+  - 🍃 ใบตองรักษ์โลก (Eco Banana Leaf)
+- 🌙 **บรรยากาศแสงจันทร์ริมน้ำแบบไทย:** ดวงจันทร์เต็มดวง, แสงสะท้อนบนผิวน้ำ, โคมลอยลอยขึ้นสู่ฟ้า, หิ่งห้อยบินระยิบระยับ, เงาวัดและเจดีย์
+- 🎵 **เสียงคลื่นน้ำและกระดิ่ง (Web Audio API):** เล่นเอฟเฟกต์เสียงน้ำและกระดิ่งเบาๆ ตอนปล่อยกระทงโดยไม่ต้องโหลดไฟล์เสียงภายนอก
+- 🔍 **แตะดูกระทง:** แตะที่กระทงใดก็ได้บนสายน้ำเพื่อเปิดดูคำอธิษฐานเต็มๆ และเวลาที่ปล่อยลอย
+- 📱 **รองรับทุกหน้าจอ:** มือถือ, แท็บเล็ต, และคอมพิวเตอร์ (Touch & Mouse friendly)
 
-- **Date:** Tuesday, November 24, 2569 (2026)
-- **Time:** 3:00 PM onwards
-- **Location:** Floor G, IDG Building (New Tower)
+---
 
-## How to View
+## 🚀 วิธีเปิดใช้งาน (Getting Started)
 
-Simply open `index.html` in a web browser.
+เปิดไฟล์ `index.html` บนเว็บเบราว์เซอร์ได้ทันที ไม่จำเป็นต้องติดตั้งไลบรารีใดๆ (Zero Dependencies) หรือรันผ่าน local server:
 
-## Files
-
-```
-├── index.html          # Main HTML page
-├── style.css           # Styles & animations
-├── script.js           # Interactivity & effects
-├── assets/
-│   └── images/
-│       └── poster.jpg  # Original event poster
-└── README.md           # This file
+```bash
+# รัน local server ด้วย Python
+python -m http.server 8080
 ```
 
-## License
+แล้วเปิดเบราว์เซอร์ไปที่ `http://localhost:8080`
+
+---
+
+## 📁 โครงสร้างโปรเจกต์ (Project Structure)
+
+```
+├── index.html          # หน้าเว็บ Interactive ลอยกระทงทั้งหมด (HTML5 Canvas + Animation Engine)
+├── README.md           # รายละเอียดโปรเจกต์
+└── assets/
+    └── images/
+        └── poster.jpg  # ภาพโปสเตอร์งาน IDG Loy Krathong 2026
+```
+
+---
 
 © 2026 IDG. All rights reserved.
